@@ -1,21 +1,23 @@
 import React from "react";
-import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, DollarSign, Clock, MapPin, Fuel } from "lucide-react";
 
-const ratingConfig = {
-  great: { label: "Great Offer!", color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200", emoji: "🔥", barColor: "bg-emerald-500" },
-  good: { label: "Good Offer", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-200", emoji: "👍", barColor: "bg-blue-500" },
-  fair: { label: "Fair Offer", color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200", emoji: "🤔", barColor: "bg-amber-500" },
-  bad: { label: "Bad Offer", color: "text-red-600", bg: "bg-red-50", border: "border-red-200", emoji: "👎", barColor: "bg-red-500" },
+import { motion } from "framer-motion";
+import { DollarSign, Clock, MapPin, Fuel } from "lucide-react";
+
+const ratingStyles = {
+  great: { label: "Great Offer!", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", emoji: "🔥", barColor: "bg-emerald-500" },
+  good: { label: "Good Offer", color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20", emoji: "👍", barColor: "bg-blue-500" },
+  fair: { label: "Fair Offer", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", emoji: "🤔", barColor: "bg-amber-500" },
+  bad: { label: "Bad Offer", color: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/20", emoji: "👎", barColor: "bg-red-500" },
 };
 
 const ratingScore = { great: 100, good: 72, fair: 45, bad: 20 };
 
 export default function OfferResult({ result }) {
   if (!result) return null;
-  
-  const config = ratingConfig[result.rating];
-  const score = ratingScore[result.rating];
+
+  const rating = result.rating in ratingStyles ? result.rating : "fair";
+  const config = ratingStyles[rating];
+  const score = ratingScore[rating];
 
   const stats = [
     { label: "Net Profit", value: `$${result.net_profit.toFixed(2)}`, icon: DollarSign, highlight: result.net_profit > 0 },
@@ -45,7 +47,7 @@ export default function OfferResult({ result }) {
         
         {/* Score Bar */}
         <div className="mt-3 mx-auto max-w-[200px]">
-          <div className="h-2 bg-white/60 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${score}%` }}
@@ -57,11 +59,25 @@ export default function OfferResult({ result }) {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-2 gap-3">
         {stats.map((stat, i) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 + i * 0.1 }}
- 
+            className="bg-card border border-border/50 rounded-xl p-3"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <stat.icon className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{stat.label}</span>
+            </div>
+            <div className={`text-lg font-bold ${stat.highlight ? 'text-primary' : 'text-foreground'}`}>
+              {stat.value}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}

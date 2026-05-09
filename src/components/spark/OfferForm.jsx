@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Zap, DollarSign, MapPin, Clock, Fuel, GaugeCircle, Pencil, CheckCheck } from "lucide-react";
+import { Zap, Fuel, GaugeCircle, Pencil, CheckCheck } from "lucide-react";
 
 const STORAGE_KEY = "spark_defaults";
 

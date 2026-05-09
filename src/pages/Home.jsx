@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { offersApi } from "@/api/offers";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Sparkles } from "lucide-react";
-import OfferForm from "../components/spark/OfferForm";
-import OfferResult from "../components/spark/OfferResult";
-import OfferHistory from "../components/spark/OfferHistory";
+import OfferForm from "@/components/spark/OfferForm";
+import OfferResult from "@/components/spark/OfferResult";
+import OfferHistory from "@/components/spark/OfferHistory";
 
 function evaluateOffer({ pay, miles, time_minutes, mpg, gas_price }) {
   const gallons = miles / mpg;
@@ -28,16 +28,16 @@ export default function Home() {
 
   const { data: offers = [] } = useQuery({
     queryKey: ["offers"],
-    queryFn: () => base44.entities.Offer.list("-created_date", 20),
+    queryFn: () => offersApi.list(),
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Offer.create(data),
+    mutationFn: (data) => offersApi.create(data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["offers"] }),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Offer.delete(id),
+    mutationFn: (id) => offersApi.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["offers"] }),
   });
 
