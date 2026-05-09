@@ -1,0 +1,59 @@
+{
+  "name": "Offer",
+  "type": "object",
+  "properties": {
+    "pay": {
+      "type": "number",
+      "description": "Total pay for the offer in dollars"
+    },
+    "miles": {
+      "type": "number",
+      "description": "Total miles for the delivery"
+    },
+    "time_minutes": {
+      "type": "number",
+      "description": "Estimated time in minutes"
+    },
+    "mpg": {
+      "type": "number",
+      "description": "Vehicle miles per gallon"
+    },
+    "gas_price": {
+      "type": "number",
+      "description": "Current gas price per gallon"
+    },
+    "gas_cost": {
+      "type": "number",
+      "description": "Calculated gas cost"
+    },
+    "net_profit": {
+      "type": "number",
+      "description": "Pay minus gas cost"
+    },
+    "hourly_rate": {
+      "type": "number",
+      "description": "Calculated hourly rate"
+    },
+    "per_mile_rate": {
+      "type": "number",
+      "description": "Pay per mile"
+    },
+    "rating": {
+      "type": "string",
+      "enum": [
+        "great",
+        "good",
+        "fair",
+        "bad"
+      ],
+      "description": "Overall offer rating"
+    }
+  },
+  "required": [
+    "pay",
+    "miles",
+    "time_minutes",
+    "mpg",
+    "gas_price"
+  ]
+}
