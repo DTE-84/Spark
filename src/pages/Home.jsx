@@ -6,12 +6,13 @@ import OfferForm from "@/components/spark/OfferForm";
 import OfferResult from "@/components/spark/OfferResult";
 import OfferHistory from "@/components/spark/OfferHistory";
 
-function evaluateOffer({ pay, miles, time_minutes, mpg, gas_price }) {
-  const gallons = miles / mpg;
+function evaluateOffer({ pay, miles, miles_back, time_minutes, mpg, gas_price }) {
+  const total_miles = miles + (parseFloat(miles_back) || 0);
+  const gallons = total_miles / mpg;
   const gas_cost = gallons * gas_price;
   const net_profit = pay - gas_cost;
   const hourly_rate = (net_profit / time_minutes) * 60;
-  const per_mile_rate = pay / miles;
+  const per_mile_rate = pay / total_miles;
 
   let rating;
   if (hourly_rate >= 20 && per_mile_rate >= 1.0) rating = "great";
@@ -19,7 +20,7 @@ function evaluateOffer({ pay, miles, time_minutes, mpg, gas_price }) {
   else if (hourly_rate >= 10 && per_mile_rate >= 0.50) rating = "fair";
   else rating = "bad";
 
-  return { gas_cost, net_profit, hourly_rate, per_mile_rate, rating };
+  return { total_miles, gas_cost, net_profit, hourly_rate, per_mile_rate, rating };
 }
 
 export default function Home() {

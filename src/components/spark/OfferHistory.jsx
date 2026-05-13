@@ -38,7 +38,9 @@ export default function OfferHistory({ offers, onDelete }) {
                 <div className="min-w-0">
                   <div className="flex items-baseline gap-2">
                     <span className="font-bold text-sm">${offer.pay?.toFixed(2)}</span>
-                    <span className="text-xs text-muted-foreground">{offer.miles}mi • {offer.time_minutes}min</span>
+                    <span className="text-xs text-muted-foreground">
+                      {offer.total_miles?.toFixed(1) || offer.miles}mi • {offer.time_minutes}min
+                    </span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     ${offer.hourly_rate?.toFixed(2)}/hr • ${offer.per_mile_rate?.toFixed(2)}/mi
