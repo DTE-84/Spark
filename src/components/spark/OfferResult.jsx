@@ -12,7 +12,7 @@ const ratingStyles = {
 
 const ratingScore = { great: 100, good: 72, fair: 45, bad: 20 };
 
-export default function OfferResult({ result }) {
+export default function OfferResult({ result, onAccept, onDecline, isAccepting }) {
   if (!result) return null;
 
   const rating = result.rating in ratingStyles ? result.rating : "fair";
@@ -66,17 +66,35 @@ export default function OfferResult({ result }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 + i * 0.1 }}
-            className="bg-card border border-border/50 rounded-xl p-3"
+            className="bg-card/70 backdrop-blur-xl border border-border/40 rounded-2xl p-4 shadow-lg shadow-black/20"
           >
-            <div className="flex items-center gap-2 mb-1">
-              <stat.icon className="w-3.5 h-3.5 text-muted-foreground" />
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{stat.label}</span>
+            <div className="flex items-center gap-2 mb-1.5">
+              <stat.icon className="w-4 h-4 text-muted-foreground" />
+              <span className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">{stat.label}</span>
             </div>
             <div className={`text-lg font-bold ${stat.highlight ? 'text-primary' : 'text-foreground'}`}>
               {stat.value}
             </div>
           </motion.div>
         ))}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="grid grid-cols-2 gap-3 mt-5">
+        <button
+          onClick={onDecline}
+          disabled={isAccepting}
+          className="h-14 flex items-center justify-center font-extrabold text-sm bg-muted/20 backdrop-blur-md hover:bg-muted/40 text-muted-foreground rounded-2xl border border-border/40 transition-all shadow-sm"
+        >
+          Clear
+        </button>
+        <button
+          onClick={onAccept}
+          disabled={isAccepting}
+          className="h-14 flex items-center justify-center font-extrabold text-sm bg-primary/90 backdrop-blur-md hover:bg-primary text-primary-foreground shadow-xl shadow-primary/25 rounded-2xl transition-all"
+        >
+          {isAccepting ? "Saving..." : "Accept Offer"}
+        </button>
       </div>
     </motion.div>
   );

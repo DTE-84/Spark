@@ -6,11 +6,12 @@ import OfferForm from "@/components/spark/OfferForm";
 import OfferResult from "@/components/spark/OfferResult";
 import OfferHistory from "@/components/spark/OfferHistory";
 
-function evaluateOffer({ pay, miles, miles_back, time_minutes, mpg, gas_price }) {
+function evaluateOffer({ pay, tips, miles, miles_back, time_minutes, mpg, gas_price }) {
   const total_miles = miles + (parseFloat(miles_back) || 0);
   const gallons = total_miles / mpg;
   const gas_cost = gallons * gas_price;
   const net_profit = pay - gas_cost;
+  const pay_without_tips = pay - (parseFloat(tips) || 0);
   const hourly_rate = (net_profit / time_minutes) * 60;
   const per_mile_rate = pay / total_miles;
 
@@ -46,7 +47,17 @@ export default function Home() {
     const calculated = evaluateOffer(formData);
     const fullData = { ...formData, ...calculated };
     setResult(fullData);
-    createMutation.mutate(fullData);
+  };
+
+  const handleAccept = () => {
+    if (result) {
+      createMutation.mutate(result);
+      setResult(null);
+    }
+  };
+
+  const handleDecline = () => {
+    setResult(null);
   };
 
   return (
@@ -60,7 +71,7 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-xl font-extrabold tracking-tight">Spark Analyzer</h1>
-              <p className="text-xs text-primary-foreground/70 font-medium">Know your worth before you drive</p>
+              <p className="text-xs text-primary-foreground/70 font-medium opacity-80">Know your worth before you drive</p>
             </div>
           </div>
         </div>
@@ -69,14 +80,19 @@ export default function Home() {
       {/* Main Content */}
       <div className="max-w-lg mx-auto px-5 -mt-2">
         {/* Form Card */}
-        <div className="bg-card rounded-2xl shadow-xl shadow-black/5 border border-border/50 p-5 mb-5">
+        <div className="bg-card/80 backdrop-blur-2xl rounded-3xl shadow-2xl shadow-black/40 border border-border/40 p-6 mb-6">
           <OfferForm onEvaluate={handleEvaluate} isLoading={createMutation.isPending} />
         </div>
 
         {/* Result */}
         {result && (
           <div className="mb-5">
-            <OfferResult result={result} />
+            <OfferResult 
+              result={result} 
+              onAccept={handleAccept} 
+              onDecline={handleDecline} 
+              isAccepting={createMutation.isPending} 
+            />
           </div>
         )}
 
