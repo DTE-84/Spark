@@ -1,6 +1,6 @@
 {
-  "name": "Spark Delivery Analyzer",
-  "short_name": "Spark",
+  "name": "SparkIQ",
+  "short_name": "SparkIQ",
   "description": "Know your worth before you drive with high-fidelity offer analysis.",
   "start_url": ".",
   "display": "standalone",

@@ -70,7 +70,7 @@ export default function Home() {
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-xl font-extrabold tracking-tight">Spark Analyzer</h1>
+              <h1 className="text-xl font-extrabold tracking-tight">SparkIQ</h1>
               <p className="text-xs text-primary-foreground/70 font-medium opacity-80">Know your worth before you drive</p>
             </div>
           </div>
