@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { format, isToday, parseISO } from "date-fns";
 
 const ratingStyles = {
+  Great: "bg-emerald-500/10 text-emerald-500",
+  Good: "bg-blue-500/10 text-blue-500",
+  Fair: "bg-amber-500/10 text-amber-500",
+  Bad: "bg-red-500/10 text-red-500",
   great: "bg-emerald-500/10 text-emerald-500",
   good: "bg-blue-500/10 text-blue-500",
   fair: "bg-amber-500/10 text-amber-500",
@@ -21,11 +25,11 @@ export default function OfferHistory({ offers, onDelete }) {
   const groupedOffers = useMemo(() => {
     const groups = {};
     offers.forEach((offer) => {
-      const dateStr = offer.created_date ? format(parseISO(offer.created_date), "yyyy-MM-dd") : "Unknown";
+      const dateStr = offer.created_at ? format(parseISO(offer.created_at), "yyyy-MM-dd") : "Unknown";
       if (!groups[dateStr]) {
         groups[dateStr] = {
           dateStr,
-          date: offer.created_date ? parseISO(offer.created_date) : new Date(),
+          date: offer.created_at ? parseISO(offer.created_at) : new Date(),
           offers: [],
           totalPay: 0,
           totalTips: 0,
@@ -122,7 +126,7 @@ export default function OfferHistory({ offers, onDelete }) {
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] font-medium text-muted-foreground hidden sm:block">
-                              {offer.created_date ? format(parseISO(offer.created_date), "h:mm a") : ""}
+                              {offer.created_at ? format(parseISO(offer.created_at), "h:mm a") : ""}
                             </span>
                             <Button
                               variant="ghost"

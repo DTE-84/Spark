@@ -21,8 +21,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'logo.svg'],
       manifest: {
-        name: 'SparkIQ',
-        short_name: 'SparkIQ',
+        name: 'RunIQ',
+        short_name: 'RunIQ',
         description: 'Know your worth before you drive with high-fidelity offer analysis.',
         theme_color: '#2DED9C',
         background_color: '#050505',

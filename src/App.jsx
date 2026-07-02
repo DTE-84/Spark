@@ -4,10 +4,11 @@ import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
 import Auth from './pages/Auth'
-import { hasValidLicense } from './utils/auth'
+import { AuthProvider, useAuth } from './context/AuthContext'
 
 function ProtectedRoute({ children }) {
-  if (!hasValidLicense()) {
+  const { user } = useAuth();
+  if (!user) {
     return <Navigate to="/auth" replace />
   }
   return children
@@ -15,19 +16,21 @@ function ProtectedRoute({ children }) {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClientInstance}>
-      <Router>
-        <Routes>
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/" element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          } />
-        </Routes>
-      </Router>
-      <Toaster />
-    </QueryClientProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClientInstance}>
+        <Router>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </Router>
+        <Toaster />
+      </QueryClientProvider>
+    </AuthProvider>
   )
 }
 

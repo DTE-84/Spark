@@ -1,55 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Key, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
-import { saveLicense } from '@/utils/auth';
+import { Sparkles, Mail, Lock, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Auth() {
-  const [licenseKey, setLicenseKey] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const handleVerify = async (e) => {
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
+
+  const handleAuth = async (e) => {
     e.preventDefault();
     setError('');
+    setMessage('');
     
-    if (!licenseKey.trim()) {
-      setError('Please enter a license key.');
+    if (!email.trim() || !password.trim()) {
+      setError('Please enter both email and password.');
       return;
     }
 
     setLoading(true);
 
     try {
-      // Use local mockup if we are running in local Vite without Vercel backend
-      if (import.meta.env.DEV && licenseKey === 'TEST_KEY') {
-        saveLicense(licenseKey);
-        navigate('/');
-        return;
-      }
-
-      const res = await fetch('/api/verify-license', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ license_key: licenseKey })
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        saveLicense(licenseKey);
-        navigate('/');
+      if (isSignUp) {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (error) throw error;
+        setMessage('Check your email for the confirmation link.');
       } else {
-        setError(data.error || 'Failed to verify license.');
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        navigate('/');
       }
     } catch (err) {
-      setError('A network error occurred. Please try again.');
+      setError(err.message || 'An error occurred during authentication.');
     } finally {
       setLoading(false);
     }
   };
 
-  const productUrl = import.meta.env.VITE_GUMROAD_PRODUCT_URL || '#';
+  const stripeCheckoutUrl = import.meta.env.VITE_STRIPE_PAYMENT_LINK || '#';
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
@@ -62,24 +69,40 @@ export default function Auth() {
           <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] border border-[#333] flex items-center justify-center shadow-xl shadow-[#10B981]/10 mb-6">
             <Sparkles className="w-8 h-8 text-[#10B981]" />
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2">SparkIQ</h1>
-          <p className="text-sm text-neutral-400 font-medium">Unlock the ultimate driver intelligence suite.</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2">RunIQ</h1>
+          <p className="text-sm text-neutral-400 font-medium text-center">Stop guessing. Know which app to run — every time.</p>
         </div>
 
         <div className="bg-[#121212]/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/5 p-8 mb-6">
-          <form onSubmit={handleVerify} className="space-y-6">
+          <form onSubmit={handleAuth} className="space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-neutral-300 mb-2">License Key</label>
+              <label className="block text-sm font-semibold text-neutral-300 mb-2">Email</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Key className="h-5 w-5 text-neutral-500" />
+                  <Mail className="h-5 w-5 text-neutral-500" />
                 </div>
                 <input
-                  type="text"
-                  value={licenseKey}
-                  onChange={(e) => setLicenseKey(e.target.value)}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="block w-full pl-10 pr-3 py-3 border border-white/10 rounded-xl bg-black/50 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent transition-all sm:text-sm"
-                  placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"
+                  placeholder="driver@example.com"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-neutral-300 mb-2">Password</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-neutral-500" />
+                </div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-3 border border-white/10 rounded-xl bg-black/50 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#10B981] focus:border-transparent transition-all sm:text-sm"
+                  placeholder="••••••••"
                 />
               </div>
             </div>
@@ -91,26 +114,42 @@ export default function Auth() {
               </div>
             )}
 
+            {message && (
+              <div className="flex items-center gap-2 text-[#10B981] text-sm bg-[#10B981]/10 p-3 rounded-lg border border-[#10B981]/20">
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                <p>{message}</p>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-black bg-[#10B981] hover:bg-[#34D399] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#10B981] focus:ring-offset-[#121212] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Verifying...' : 'Unlock App'}
+              {loading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
               {!loading && <ArrowRight className="w-4 h-4" />}
             </button>
           </form>
+
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-sm text-neutral-400 hover:text-white transition-colors"
+            >
+              {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+            </button>
+          </div>
         </div>
 
         <div className="text-center">
-          <p className="text-sm text-neutral-500 mb-3">Don't have a license yet?</p>
+          <p className="text-sm text-neutral-500 mb-3">Want to become a RunIQ member?</p>
           <a
-            href={productUrl}
+            href={stripeCheckoutUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-[#10B981] hover:text-[#34D399] transition-colors"
           >
-            Get lifetime access for $4.99 <CheckCircle2 className="w-4 h-4" />
+            Start your subscription <CheckCircle2 className="w-4 h-4" />
           </a>
         </div>
       </div>

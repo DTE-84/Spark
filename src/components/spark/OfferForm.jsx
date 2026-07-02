@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Zap, Fuel, GaugeCircle, Pencil, CheckCheck, Undo2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Zap, Fuel, GaugeCircle, Pencil, CheckCheck, Undo2, MapPin, ShoppingBag } from "lucide-react";
 
 const STORAGE_KEY = "spark_defaults";
 
@@ -22,7 +23,17 @@ function saveDefaults(mpg, gas_price) {
 export default function OfferForm({ onEvaluate, isLoading }) {
   const saved = getSaved();
 
-  const [offer, setOffer] = useState({ pay: "", tips: "", miles: "", miles_back: "", time_minutes: "" });
+  const [offer, setOffer] = useState({
+    platform: "Spark",
+    pay: "",
+    tips: "",
+    miles: "",
+    miles_back: "",
+    time_minutes: "",
+    items: "",
+    dropoff_zone: "",
+  });
+  
   const [settings, setSettings] = useState({ mpg: saved.mpg || "", gas_price: saved.gas_price || "" });
   const [editingSettings, setEditingSettings] = useState(!saved.mpg || !saved.gas_price);
 
@@ -36,20 +47,42 @@ export default function OfferForm({ onEvaluate, isLoading }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     onEvaluate({
+      platform: offer.platform,
       pay: parseFloat(offer.pay),
       tips: parseFloat(offer.tips || 0),
       miles: parseFloat(offer.miles),
       miles_back: parseFloat(offer.miles_back || 0),
       time_minutes: parseFloat(offer.time_minutes),
+      items: offer.items ? parseInt(offer.items, 10) : 0,
+      dropoff_zone: offer.dropoff_zone,
       mpg: parseFloat(settings.mpg),
       gas_price: parseFloat(settings.gas_price),
+      timestamp: new Date().toISOString(), // Pass current time for context
     });
   };
 
   const isValid = offer.pay && offer.miles && offer.time_minutes && settings.mpg && settings.gas_price;
 
+  const showItemsField = ["Instacart", "Spark", "DoorDash"].includes(offer.platform); // Show mostly everywhere for shop&deliver possibility
+
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Platform Selector */}
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Platform</Label>
+        <Select value={offer.platform} onValueChange={(val) => handleOfferChange("platform", val)}>
+          <SelectTrigger className="w-full h-12 bg-muted/40 backdrop-blur-sm border-0 focus:ring-2 focus:ring-primary/40 rounded-xl text-base font-semibold">
+            <SelectValue placeholder="Select Platform" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Spark">Spark (Walmart)</SelectItem>
+            <SelectItem value="DoorDash">DoorDash</SelectItem>
+            <SelectItem value="UberEats">Uber Eats</SelectItem>
+            <SelectItem value="Instacart">Instacart</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Offer Fields */}
       <div className="grid grid-cols-2 gap-3">
         {/* Pay and Tips */}
@@ -104,8 +137,8 @@ export default function OfferForm({ onEvaluate, isLoading }) {
         </div>
 
         {/* Miles Back */}
-        <div className="col-span-2 space-y-1.5">
-          <Label htmlFor="miles_back" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Miles Back (Deadhead)</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="miles_back" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Deadhead</Label>
           <div className="relative">
             <Input
               id="miles_back" type="number" step="0.1" min="0" placeholder="3.5"
@@ -116,6 +149,40 @@ export default function OfferForm({ onEvaluate, isLoading }) {
               <Undo2 className="w-3.5 h-3.5" />
             </span>
             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-medium">mi</span>
+          </div>
+        </div>
+        
+        {/* Items (Conditional) */}
+        {showItemsField ? (
+          <div className="space-y-1.5">
+            <Label htmlFor="items" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Items</Label>
+            <div className="relative">
+              <Input
+                id="items" type="number" step="1" min="0" placeholder="10"
+                value={offer.items} onChange={(e) => handleOfferChange("items", e.target.value)}
+                className="h-11 text-base font-medium pl-8 bg-muted/40 backdrop-blur-sm border-0 focus:bg-muted/60 focus:ring-2 focus:ring-primary/40 transition-all rounded-xl"
+              />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                <ShoppingBag className="w-3.5 h-3.5" />
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-1.5"></div>
+        )}
+
+        {/* Dropoff Zone */}
+        <div className="col-span-2 space-y-1.5">
+          <Label htmlFor="dropoff_zone" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Dropoff Zone (Optional)</Label>
+          <div className="relative">
+            <Input
+              id="dropoff_zone" type="text" placeholder="e.g. Downtown, Suburbs, Sketchy area"
+              value={offer.dropoff_zone} onChange={(e) => handleOfferChange("dropoff_zone", e.target.value)}
+              className="h-11 text-base font-medium pl-8 bg-muted/40 backdrop-blur-sm border-0 focus:bg-muted/60 focus:ring-2 focus:ring-primary/40 transition-all rounded-xl"
+            />
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <MapPin className="w-3.5 h-3.5" />
+            </span>
           </div>
         </div>
       </div>

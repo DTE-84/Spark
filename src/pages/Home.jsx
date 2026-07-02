@@ -1,52 +1,52 @@
 import React, { useState } from "react";
 import { offersApi } from "@/api/offers";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Sparkles } from "lucide-react";
+import { Sparkles, LogOut } from "lucide-react";
 import OfferForm from "@/components/spark/OfferForm";
 import OfferResult from "@/components/spark/OfferResult";
 import OfferHistory from "@/components/spark/OfferHistory";
-
-function evaluateOffer({ pay, tips, miles, miles_back, time_minutes, mpg, gas_price }) {
-  const total_miles = miles + (parseFloat(miles_back) || 0);
-  const gallons = total_miles / mpg;
-  const gas_cost = gallons * gas_price;
-  const net_profit = pay - gas_cost;
-  const pay_without_tips = pay - (parseFloat(tips) || 0);
-  const hourly_rate = (net_profit / time_minutes) * 60;
-  const per_mile_rate = pay / total_miles;
-
-  let rating;
-  if (hourly_rate >= 20 && per_mile_rate >= 1.0) rating = "great";
-  else if (hourly_rate >= 15 && per_mile_rate >= 0.75) rating = "good";
-  else if (hourly_rate >= 10 && per_mile_rate >= 0.50) rating = "fair";
-  else rating = "bad";
-
-  return { total_miles, gas_cost, net_profit, hourly_rate, per_mile_rate, rating };
-}
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase";
 
 export default function Home() {
   const [result, setResult] = useState(null);
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const { data: offers = [] } = useQuery({
-    queryKey: ["offers"],
-    queryFn: () => offersApi.list(),
+    queryKey: ["offers", user?.id],
+    queryFn: () => offersApi.list(user?.id),
+    enabled: !!user?.id
+  });
+
+  const evaluateMutation = useMutation({
+    mutationFn: async (formData) => {
+      const res = await fetch('/api/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      if (!res.ok) throw new Error('Failed to evaluate offer');
+      const data = await res.json();
+      return { ...formData, ...data };
+    },
+    onSuccess: (data) => {
+      setResult(data);
+    }
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => offersApi.create(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["offers"] }),
+    mutationFn: (data) => offersApi.create(data, user?.id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["offers", user?.id] }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => offersApi.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["offers"] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["offers", user?.id] }),
   });
 
   const handleEvaluate = (formData) => {
-    const calculated = evaluateOffer(formData);
-    const fullData = { ...formData, ...calculated };
-    setResult(fullData);
+    evaluateMutation.mutate(formData);
   };
 
   const handleAccept = () => {
@@ -60,19 +60,28 @@ export default function Home() {
     setResult(null);
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-primary text-primary-foreground">
+      <div className="bg-[#0A0A0A] text-white">
         <div className="max-w-lg mx-auto px-5 py-6">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-white/15 flex items-center justify-center">
-              <Sparkles className="w-5 h-5" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] border border-[#333] shadow-[#10B981]/10 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-[#10B981]" />
+              </div>
+              <div>
+                <h1 className="text-xl font-extrabold tracking-tight">RunIQ</h1>
+                <p className="text-xs text-neutral-400 font-medium">Know your worth before you drive</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-extrabold tracking-tight">SparkIQ</h1>
-              <p className="text-xs text-primary-foreground/70 font-medium opacity-80">Know your worth before you drive</p>
-            </div>
+            <button onClick={handleSignOut} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
+              <LogOut className="w-4 h-4 text-neutral-400" />
+            </button>
           </div>
         </div>
       </div>
@@ -81,7 +90,7 @@ export default function Home() {
       <div className="max-w-lg mx-auto px-5 -mt-2">
         {/* Form Card */}
         <div className="bg-card/80 backdrop-blur-2xl rounded-3xl shadow-2xl shadow-black/40 border border-border/40 p-6 mb-6">
-          <OfferForm onEvaluate={handleEvaluate} isLoading={createMutation.isPending} />
+          <OfferForm onEvaluate={handleEvaluate} isLoading={evaluateMutation.isPending} />
         </div>
 
         {/* Result */}
