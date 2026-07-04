@@ -56,6 +56,21 @@ export default function Auth() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+      });
+      if (error) throw error;
+      // OAuth will redirect, so no need to manually navigate here
+    } catch (err) {
+      setError(err.message || 'An error occurred during Google authentication.');
+      setLoading(false);
+    }
+  };
+
   const stripeCheckoutUrl = import.meta.env.VITE_STRIPE_PAYMENT_LINK || '#';
 
   return (
@@ -130,6 +145,27 @@ export default function Auth() {
               {!loading && <ArrowRight className="w-4 h-4" />}
             </button>
           </form>
+
+          <div className="relative mt-6 mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-white/10"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-[#121212] text-neutral-500">Or continue with</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 border border-white/10 rounded-xl shadow-sm text-sm font-bold text-white bg-white/5 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#10B981] focus:ring-offset-[#121212] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg viewBox="0 0 24 24" className="w-5 h-5 mr-2" aria-hidden="true">
+              <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" fill="currentColor" />
+            </svg>
+            Google
+          </button>
 
           <div className="mt-4 text-center">
             <button
