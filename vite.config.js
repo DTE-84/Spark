@@ -19,7 +19,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'logo.svg'],
+      includeAssets: ['logo.svg'],
       manifest: {
         name: 'RunIQ',
         short_name: 'RunIQ',

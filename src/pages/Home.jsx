@@ -26,12 +26,22 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      if (!res.ok) throw new Error('Failed to evaluate offer');
+      if (!res.ok) {
+        let errorMsg = 'Failed to evaluate offer';
+        try {
+          const errData = await res.json();
+          if (errData.error) errorMsg = errData.error;
+        } catch(e) {}
+        throw new Error(errorMsg);
+      }
       const data = await res.json();
       return { ...formData, ...data };
     },
     onSuccess: (data) => {
       setResult(data);
+    },
+    onError: (error) => {
+      alert("Evaluation Error: " + error.message);
     }
   });
 
