@@ -8,7 +8,7 @@
   :root {
     --font-inter: 'Inter', sans-serif;
     /* Obsidian/Charcoal Backgrounds */
-    --background: 160 6% 8%; /* Very dark charcoal */
+    --background: 160 6% 6%; /* Very dark charcoal */
     --foreground: 160 10% 96%;
     --card: 160 5% 10%; /* Slightly lighter charcoal for cards */
     --card-foreground: 160 10% 96%;
@@ -26,14 +26,14 @@
     --accent-foreground: 160 10% 8%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 160 10% 98%;
-    --border: 160 4% 20%;
-    --input: 160 4% 20%;
+    --border: 160 4% 18%;
+    --input: 160 4% 18%;
     --ring: 152 100% 50%;
     --radius: 1rem;
   }
 
   .dark {
-    --background: 160 6% 8%;
+    --background: 160 6% 6%;
     --foreground: 160 10% 96%;
     --card: 160 5% 10%;
     --card-foreground: 160 10% 96%;
@@ -49,8 +49,8 @@
     --accent-foreground: 160 10% 8%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 160 10% 98%;
-    --border: 160 4% 20%;
-    --input: 160 4% 20%;
+    --border: 160 4% 18%;
+    --input: 160 4% 18%;
     --ring: 152 100% 50%;
   }
 }
@@ -61,6 +61,34 @@
   }
 
   body {
-    @apply bg-background text-foreground font-inter;
+    @apply bg-background text-foreground font-inter antialiased selection:bg-[#00FF85]/30 selection:text-white;
+  }
+
+  /* Premium Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 255, 133, 0.5);
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-[#0A0A0A]/60 backdrop-blur-3xl border border-white/5 shadow-2xl;
+  }
+  .glass-card {
+    @apply bg-card/40 backdrop-blur-xl border border-white/[0.08] shadow-lg;
+  }
+  .text-glow {
+    text-shadow: 0 0 10px rgba(0, 255, 133, 0.5);
   }
 }

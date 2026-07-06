@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import { format, isToday, parseISO } from "date-fns";
 
 const ratingStyles = {
-  Great: "bg-emerald-500/10 text-emerald-500",
-  Good: "bg-blue-500/10 text-blue-500",
-  Fair: "bg-amber-500/10 text-amber-500",
-  Bad: "bg-red-500/10 text-red-500",
-  great: "bg-emerald-500/10 text-emerald-500",
-  good: "bg-blue-500/10 text-blue-500",
-  fair: "bg-amber-500/10 text-amber-500",
-  bad: "bg-red-500/10 text-red-500",
+  Great: "bg-[#00FF85]/10 text-[#00FF85] border border-[#00FF85]/20 shadow-[0_0_15px_rgba(0,255,133,0.1)]",
+  Good: "bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.1)]",
+  Fair: "bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]",
+  Bad: "bg-red-500/10 text-red-500 border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)]",
+  great: "bg-[#00FF85]/10 text-[#00FF85] border border-[#00FF85]/20 shadow-[0_0_15px_rgba(0,255,133,0.1)]",
+  good: "bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.1)]",
+  fair: "bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]",
+  bad: "bg-red-500/10 text-red-500 border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)]",
 };
 
 export default function OfferHistory({ offers, onDelete }) {
@@ -61,7 +61,12 @@ export default function OfferHistory({ offers, onDelete }) {
           const isExpanded = expandedDays[group.dateStr] ?? isCurrentDay;
 
           return (
-            <div key={group.dateStr} className="bg-card/70 backdrop-blur-xl rounded-3xl border border-border/40 overflow-hidden shadow-2xl shadow-black/30">
+            <motion.div 
+              key={group.dateStr} 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="glass-panel rounded-3xl overflow-hidden shadow-2xl shadow-black/40"
+            >
               {/* Day Header */}
               <button
                 onClick={() => toggleDay(group.dateStr)}
@@ -105,45 +110,53 @@ export default function OfferHistory({ offers, onDelete }) {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    className="border-t border-border/50"
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="border-t border-white/5"
                   >
-                    <div className="p-3 space-y-2 bg-background/50">
-                      {group.offers.map((offer) => (
-                        <div key={offer.id} className="flex items-center justify-between group bg-background/60 backdrop-blur-md rounded-2xl p-4 border border-border/30 hover:border-primary/30 transition-all shadow-sm">
+                    <div className="p-3 space-y-3 bg-black/20">
+                      {group.offers.map((offer, index) => (
+                        <motion.div 
+                          key={offer.id} 
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05, duration: 0.3 }}
+                          whileHover={{ scale: 1.01 }}
+                          className="flex items-center justify-between group glass-card rounded-2xl p-4 transition-all"
+                        >
                           <div className="flex items-center gap-4 min-w-0">
-                            <span className={`px-2 py-1 rounded-md text-[10px] font-extrabold uppercase ${ratingStyles[offer.rating] || ratingStyles.fair}`}>
+                            <span className={`px-2.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest ${ratingStyles[offer.rating] || ratingStyles.fair}`}>
                               {offer.rating}
                             </span>
                             <div className="min-w-0">
                               <div className="flex items-baseline gap-2">
-                                <span className="font-bold text-sm text-foreground">${offer.pay?.toFixed(2)}</span>
-                                {offer.tips > 0 && <span className="text-[10px] font-bold text-emerald-500/90">+{offer.tips.toFixed(2)} tip</span>}
+                                <span className="font-black text-lg text-white">${offer.pay?.toFixed(2)}</span>
+                                {offer.tips > 0 && <span className="text-[11px] font-bold text-[#00FF85]">+{offer.tips.toFixed(2)} tip</span>}
                               </div>
-                              <p className="text-[11px] text-muted-foreground mt-0.5">
-                                {offer.total_miles?.toFixed(1) || offer.miles}mi • {offer.time_minutes}min • <span className="font-medium">${offer.hourly_rate?.toFixed(2)}/hr</span>
+                              <p className="text-[11px] font-medium text-neutral-400 mt-0.5">
+                                {offer.total_miles?.toFixed(1) || offer.miles}mi • {offer.time_minutes}min • <span className="text-white">${offer.hourly_rate?.toFixed(2)}/hr</span>
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-medium text-muted-foreground hidden sm:block">
+                          <div className="flex items-center gap-3">
+                            <span className="text-[10px] font-bold text-neutral-500 hidden sm:block">
                               {offer.created_at ? format(parseISO(offer.created_at), "h:mm a") : ""}
                             </span>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-muted-foreground/50 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                              className="h-9 w-9 text-neutral-500 hover:text-red-500 hover:bg-red-500/10 rounded-full transition-colors opacity-60 group-hover:opacity-100"
                               onClick={() => onDelete(offer.id)}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
-                        </div>
+                        </motion.div>
                       ))}
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </div>
+            </motion.div>
           );
         })}
       </div>
