@@ -8,11 +8,13 @@ import OfferHistory from "@/components/spark/OfferHistory";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSubscription } from "@/hooks/useSubscription";
 
 export default function Home() {
   const [result, setResult] = useState(null);
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const { tier, isPremium } = useSubscription();
 
   const { data: offers = [] } = useQuery({
     queryKey: ["offers", user?.id],
@@ -95,7 +97,14 @@ export default function Home() {
                 <Sparkles className="w-5 h-5 text-[#00FF85] relative z-10" />
               </div>
               <div>
-                <h1 className="text-xl font-extrabold tracking-tight text-white">RunIQ</h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl font-extrabold tracking-tight text-white">RunIQ</h1>
+                  {isPremium && (
+                    <span className="px-2 py-0.5 text-[10px] uppercase tracking-wider font-bold bg-[#00FF85]/20 text-[#00FF85] border border-[#00FF85]/30 rounded-full">
+                      {tier}
+                    </span>
+                  )}
+                </div>
                 <p className="text-[11px] uppercase tracking-widest text-[#00FF85] font-semibold opacity-80">Drive Smarter</p>
               </div>
             </div>

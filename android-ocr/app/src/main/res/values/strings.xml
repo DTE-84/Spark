@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SparkIQ Telemetry</string>
+    <string name="accessibility_service_description">SparkIQ uses this service to detect delivery offers on screen and calculate real-time net metrics. It requires screen reading capabilities to extract Price, Miles, and Item counts.</string>
+</resources>
