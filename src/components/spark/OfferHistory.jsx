@@ -45,15 +45,49 @@ export default function OfferHistory({ offers, onDelete }) {
     return Object.values(groups).sort((a, b) => b.date - a.date);
   }, [offers]);
 
+  const globalTotals = useMemo(() => {
+    return offers.reduce((acc, offer) => {
+      acc.pay += (offer.pay || 0);
+      acc.tips += (offer.tips || 0);
+      acc.gas += (offer.gas_cost || 0);
+      return acc;
+    }, { pay: 0, tips: 0, gas: 0 });
+  }, [offers]);
+
   if (!offers || offers.length === 0) return null;
 
   return (
     <div className="space-y-4 pb-10">
       <div className="flex items-center gap-2 mb-2 px-1">
         <Calendar className="w-4 h-4 text-emerald-500" />
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Daily Dashboard</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Dashboard</h3>
       </div>
       
+      {/* Global Running Totals Banner */}
+      <motion.div 
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="glass-panel rounded-3xl p-5 shadow-lg shadow-[#00FF85]/5 border border-[#00FF85]/10 bg-gradient-to-br from-[#00FF85]/10 to-transparent"
+      >
+        <div className="flex items-center justify-between mb-3">
+          <h4 className="text-xs font-black text-[#00FF85] uppercase tracking-widest">All-Time Running Totals</h4>
+        </div>
+        <div className="grid grid-cols-3 gap-3 w-full">
+          <div className="flex flex-col">
+            <span className="text-[10px] text-muted-foreground uppercase font-bold flex items-center gap-1"><Wallet className="w-3 h-3"/> Pay</span>
+            <span className="font-extrabold text-foreground text-xl">${globalTotals.pay.toFixed(2)}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] text-emerald-600/70 dark:text-emerald-400/70 uppercase font-bold flex items-center gap-1"><DollarSign className="w-3 h-3"/> Tips</span>
+            <span className="font-extrabold text-emerald-600 dark:text-emerald-400 text-xl">${globalTotals.tips.toFixed(2)}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] text-red-500/70 uppercase font-bold flex items-center gap-1"><Fuel className="w-3 h-3"/> Gas</span>
+            <span className="font-extrabold text-red-500/90 text-xl">-${globalTotals.gas.toFixed(2)}</span>
+          </div>
+        </div>
+      </motion.div>
+
       <div className="space-y-4">
         {groupedOffers.map((group) => {
           const isCurrentDay = isToday(group.date);
