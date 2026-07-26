@@ -75,7 +75,7 @@ export default function Auth() {
     }
   };
 
-  const stripeCheckoutUrl = import.meta.env.VITE_STRIPE_PAYMENT_LINK || '#';
+
 
   return (
     <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-4 relative overflow-hidden">
@@ -204,22 +204,7 @@ export default function Auth() {
           </div>
         </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-center"
-        >
-          <p className="text-sm text-neutral-500 mb-3">Want to become a RunIQ member?</p>
-          <a
-            href={stripeCheckoutUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-[#00FF85] hover:text-[#34D399] transition-colors"
-          >
-            Start your subscription <CheckCircle2 className="w-4 h-4" />
-          </a>
-        </motion.div>
+
       </div>
     </div>
   );
