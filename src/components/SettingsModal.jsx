@@ -58,16 +58,20 @@ export default function SettingsModal({ isOpen, onClose, onClearHistory, isClear
                     <p className="text-[11px] text-neutral-400 font-medium mt-1">Automatically delete saved offers.</p>
                   </div>
                 </div>
-                <Select value={autoClear} onValueChange={handleAutoClearChange}>
-                  <SelectTrigger className="w-full h-12 bg-white/5 border border-white/10 rounded-xl font-semibold text-white">
-                    <SelectValue placeholder="Select an option" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#121212] border border-white/10 rounded-xl z-[150]">
-                    <SelectItem value="never" className="focus:bg-white/10 font-semibold cursor-pointer">Never</SelectItem>
-                    <SelectItem value="1_day" className="focus:bg-white/10 font-semibold cursor-pointer">After 24 hours</SelectItem>
-                    <SelectItem value="app_close" className="focus:bg-white/10 font-semibold cursor-pointer">On App Close (New Session)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="relative">
+                  <select
+                    value={autoClear}
+                    onChange={(e) => handleAutoClearChange(e.target.value)}
+                    className="w-full h-12 bg-white/5 border border-white/10 rounded-xl font-semibold text-white px-4 appearance-none focus:outline-none focus:ring-1 focus:ring-[#00FF85] cursor-pointer"
+                  >
+                    <option value="never" className="bg-[#121212] text-white">Never</option>
+                    <option value="1_day" className="bg-[#121212] text-white">After 24 hours</option>
+                    <option value="app_close" className="bg-[#121212] text-white">On App Close (New Session)</option>
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </div>
+                </div>
               </div>
 
               <div className="h-[1px] bg-white/5 w-full my-4" />
