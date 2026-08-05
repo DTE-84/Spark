@@ -66,5 +66,37 @@ export const offersApi = {
     }
 
     return { success: true };
+  },
+
+  deleteAll: async (userId) => {
+    if (!userId) return { success: false };
+    const { error } = await supabase
+      .from('offers')
+      .delete()
+      .eq('user_id', userId);
+    
+    if (error) {
+      console.error('Error clearing all offers:', error);
+      throw error;
+    }
+    return { success: true };
+  },
+
+  deleteOlderThan: async (userId, hours) => {
+    if (!userId) return { success: false };
+    const date = new Date();
+    date.setHours(date.getHours() - hours);
+    
+    const { error } = await supabase
+      .from('offers')
+      .delete()
+      .eq('user_id', userId)
+      .lt('created_at', date.toISOString());
+
+    if (error) {
+      console.error('Error clearing old offers:', error);
+      throw error;
+    }
+    return { success: true };
   }
 };

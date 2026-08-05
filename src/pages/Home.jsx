@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { offersApi } from "@/api/offers";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Sparkles, LogOut } from "lucide-react";
+import { Sparkles, LogOut, Settings } from "lucide-react";
 import OfferForm from "@/components/spark/OfferForm";
 import OfferResult from "@/components/spark/OfferResult";
 import OfferHistory from "@/components/spark/OfferHistory";
@@ -9,9 +9,11 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSubscription } from "@/hooks/useSubscription";
+import SettingsModal from "@/components/SettingsModal";
 
 export default function Home() {
   const [result, setResult] = useState(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { tier, isPremium } = useSubscription();
@@ -21,6 +23,26 @@ export default function Home() {
     queryFn: () => offersApi.list(user?.id),
     enabled: !!user?.id
   });
+
+  // Handle Auto-Clear Logic
+  React.useEffect(() => {
+    if (!user?.id) return;
+    const autoClear = localStorage.getItem('runiq_auto_clear');
+    
+    if (autoClear === '1_day') {
+      offersApi.deleteOlderThan(user.id, 24).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["offers", user.id] });
+      }).catch(console.error);
+    } else if (autoClear === 'app_close') {
+      const isNewSession = !sessionStorage.getItem('runiq_session_started');
+      if (isNewSession) {
+        offersApi.deleteAll(user.id).then(() => {
+          sessionStorage.setItem('runiq_session_started', 'true');
+          queryClient.invalidateQueries({ queryKey: ["offers", user.id] });
+        }).catch(console.error);
+      }
+    }
+  }, [user?.id, queryClient]);
 
   const evaluateMutation = useMutation({
     mutationFn: async (formData) => {
@@ -56,6 +78,14 @@ export default function Home() {
   const deleteMutation = useMutation({
     mutationFn: (id) => offersApi.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["offers", user?.id] }),
+  });
+
+  const clearAllMutation = useMutation({
+    mutationFn: () => offersApi.deleteAll(user?.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["offers", user?.id] });
+      setIsSettingsOpen(false);
+    },
   });
 
   const handleEvaluate = (formData) => {
@@ -108,12 +138,20 @@ export default function Home() {
                 <p className="text-[11px] uppercase tracking-widest text-[#00FF85] font-semibold opacity-80">Drive Smarter</p>
               </div>
             </div>
-            <button 
-              onClick={handleSignOut} 
-              className="p-2.5 bg-white/5 border border-white/5 rounded-full hover:bg-white/10 hover:text-white text-neutral-400 transition-all active:scale-95"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setIsSettingsOpen(true)}
+                className="p-2.5 bg-white/5 border border-white/5 rounded-full hover:bg-white/10 hover:text-white text-neutral-400 transition-all active:scale-95"
+              >
+                <Settings className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={handleSignOut} 
+                className="p-2.5 bg-white/5 border border-white/5 rounded-full hover:bg-red-500/10 hover:text-red-500 text-neutral-400 transition-all active:scale-95"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </motion.div>
@@ -162,6 +200,13 @@ export default function Home() {
           <OfferHistory offers={offers} onDelete={(id) => deleteMutation.mutate(id)} />
         </motion.div>
       </div>
+
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        onClearHistory={() => clearAllMutation.mutate()}
+        isClearing={clearAllMutation.isPending}
+      />
     </div>
   );
 }
