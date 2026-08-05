@@ -5,6 +5,7 @@
       "schedule": "0 0 * * *"
     }
   ],
+  "installCommand": "pnpm install --no-frozen-lockfile",
   "rewrites": [
     {
       "source": "/(.*)",
