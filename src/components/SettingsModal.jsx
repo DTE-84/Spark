@@ -62,7 +62,7 @@ export default function SettingsModal({ isOpen, onClose, onClearHistory, isClear
                   <SelectTrigger className="w-full h-12 bg-white/5 border border-white/10 rounded-xl font-semibold text-white">
                     <SelectValue placeholder="Select an option" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#121212] border border-white/10 rounded-xl">
+                  <SelectContent className="bg-[#121212] border border-white/10 rounded-xl z-[150]">
                     <SelectItem value="never" className="focus:bg-white/10 font-semibold cursor-pointer">Never</SelectItem>
                     <SelectItem value="1_day" className="focus:bg-white/10 font-semibold cursor-pointer">After 24 hours</SelectItem>
                     <SelectItem value="app_close" className="focus:bg-white/10 font-semibold cursor-pointer">On App Close (New Session)</SelectItem>
