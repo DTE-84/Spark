@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../lib/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 export function useSubscription() {
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
   const [tier, setTier] = useState('free'); // Default to free
   const [status, setStatus] = useState('active');
   const [loading, setLoading] = useState(true);
