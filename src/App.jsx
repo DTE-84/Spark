@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import Home from './pages/Home'
 import Auth from './pages/Auth'
 import Pricing from './pages/Pricing'
+import InstallPrompt from './components/InstallPrompt'
 import { AuthProvider, useAuth } from './context/AuthContext'
 
 function ProtectedRoute({ children }) {
@@ -34,6 +35,7 @@ function App() {
             } />
           </Routes>
         </Router>
+        <InstallPrompt />
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>
